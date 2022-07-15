@@ -5,6 +5,8 @@ namespace Blog.Models
 {
     public class Post
     {
+        #region Properties
+
         public int Id { get; set; }
         public string Title { get; set; }
         public string Summary { get; set; }
@@ -16,5 +18,7 @@ namespace Blog.Models
         public User Author { get; set; }
 
         public List<Tag> Tags { get; set; }
+
+        #endregion
     }
 }

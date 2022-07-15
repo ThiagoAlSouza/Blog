@@ -4,6 +4,8 @@ namespace Blog.Models
 {
     public class User
     {
+        #region Properties
+
         public int Id { get; set; }
         public string Name { get; set; }
         public string Email { get; set; }
@@ -14,5 +16,7 @@ namespace Blog.Models
 
         public IList<Post> Posts { get; set; }
         public IList<Role> Roles { get; set; }
+        
+        #endregion
     }
 }
