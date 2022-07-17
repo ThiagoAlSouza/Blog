@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Blog.Data;
+﻿using Blog.Data;
 using Blog.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,68 +8,117 @@ namespace Blog.Controllers;
 [ApiController]
 public class CategoryController : ControllerBase
 {
-    [HttpGet("categories")]
+    [HttpGet("v1/categories")]
     public async Task<IActionResult> Get([FromServices] BlogDataContext context)
     {
-        var listCategory = await context.Categories.AsNoTracking().ToListAsync();
+        try
+        {
+            var listCategory = await context.Categories.AsNoTracking().ToListAsync();
 
-        return Ok(listCategory);
+            return Ok(listCategory);
+        }
+        catch (ArgumentNullException e)
+        {
+            return StatusCode(500, "Any value null on object.");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "Internal error server");
+        }
     }
 
-    [HttpGet("categories/{id:int}")]
+    [HttpGet("v1/categories/{id:int}")]
     public async Task<IActionResult> GetByIdAsync([FromServices] BlogDataContext context, [FromRoute] int id)
     {
-        var category = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        try
+        {
+            var category = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
-        if (category == null)
-            return NotFound();
+            if (category == null)
+                return NotFound();
 
-        return Ok(category);
+            return Ok(category);
+        }
+        catch (ArgumentNullException e)
+        {
+            return StatusCode(500, "Any value null on object.");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "Internal error server");
+        }
     }
 
-    [HttpPost("categories")]
-    public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] Category category) 
+    [HttpPost("v1/categories")]
+    public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] Category category)
     {
-        if (category == null)
-            return BadRequest();
+        try
+        {
+            await context.Categories.AddAsync(category);
+            await context.SaveChangesAsync();
 
-        await context.Categories.AddAsync(category);
-        await context.SaveChangesAsync();
-
-        return Created($"categories/{category.Id}", category);
+            return Created($"categories/{category.Id}", category);
+        }
+        catch (DbUpdateException e)
+        {
+            return StatusCode(500, "Failed to insert register.");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "Internal error server");
+        }
     }
 
-    [HttpPut("categories/{id:int}")]
+    [HttpPut("v1/categories/{id:int}")]
     public async Task<IActionResult> Put([FromServices] BlogDataContext context, [FromBody] Category category, [FromRoute] int id)
     {
-        if (category == null)
-            return BadRequest();
+        try
+        {
+            var register = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
-        var register = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-        
-        if(register == null)
-            return NotFound();
+            if (register == null)
+                return NotFound();
 
-        register.Name = category.Name;
-        register.Slug = category.Slug;
+            register.Name = category.Name;
+            register.Slug = category.Slug;
 
-        context.Categories.Update(register);
-        await context.SaveChangesAsync();
+            context.Categories.Update(register);
+            await context.SaveChangesAsync();
 
-        return Ok();
+            return Ok();
+        }
+        catch (DbUpdateException e)
+        {
+            return StatusCode(500, "Failed to insert register.");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "Internal error server");
+        }
     }
 
-    [HttpDelete("categories/{id:int}")]
+    [HttpDelete("v1/categories/{id:int}")]
     public async Task<IActionResult> Delete([FromServices] BlogDataContext context, [FromRoute] int id)
     {
-        var register = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        try
+        {
+            var register = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
-        if (register == null)
-            return NotFound();
-        
-        context.Categories.Remove(register);
-        await context.SaveChangesAsync();
+            if (register == null)
+                return NotFound();
 
-        return Ok(register);
+            context.Categories.Remove(register);
+            await context.SaveChangesAsync();
+
+            return Ok(register);
+        }
+        catch (DbUpdateException e)
+        {
+            return StatusCode(500, "Failed to insert register.");
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, "Internal error server");
+        }
     }
 }
