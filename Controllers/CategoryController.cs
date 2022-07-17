@@ -1,5 +1,6 @@
 ﻿using Blog.Data;
 using Blog.Models;
+using Blog.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -50,14 +51,20 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPost("v1/categories")]
-    public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] Category category)
+    public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel category)
     {
         try
         {
-            await context.Categories.AddAsync(category);
+            var categoryObject = new Category()
+            {
+                Name = !string.IsNullOrEmpty(category.Name) ? category.Name : string.Empty,
+                Slug = !string.IsNullOrEmpty(category.Slug) ? category.Slug : string.Empty
+            };
+
+            await context.Categories.AddAsync(categoryObject);
             await context.SaveChangesAsync();
 
-            return Created($"categories/{category.Id}", category);
+            return Created($"categories/{categoryObject.Id}", categoryObject);
         }
         catch (DbUpdateException e)
         {
@@ -70,7 +77,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut("v1/categories/{id:int}")]
-    public async Task<IActionResult> Put([FromServices] BlogDataContext context, [FromBody] Category category, [FromRoute] int id)
+    public async Task<IActionResult> Put([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel category, [FromRoute] int id)
     {
         try
         {
