@@ -1,4 +1,5 @@
 ﻿using Blog.Data;
+using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels;
 using Microsoft.AspNetCore.Mvc;
@@ -16,15 +17,11 @@ public class CategoryController : ControllerBase
         {
             var listCategory = await context.Categories.AsNoTracking().ToListAsync();
 
-            return Ok(listCategory);
+            return Ok(new ResultViewModel<List<Category>>(listCategory));
         }
         catch (ArgumentNullException e)
         {
-            return StatusCode(500, "Any value null on object.");
-        }
-        catch (Exception e)
-        {
-            return StatusCode(500, "Internal error server");
+            return StatusCode(500, new ResultViewModel<List<Category>>("Any value null on object."));
         }
     }
 
@@ -36,29 +33,28 @@ public class CategoryController : ControllerBase
             var category = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             if (category == null)
-                return NotFound();
+                return NotFound(new ResultViewModel<Category>("Register not found."));
 
-            return Ok(category);
-        }
-        catch (ArgumentNullException e)
-        {
-            return StatusCode(500, "Any value null on object.");
+            return Ok(new ResultViewModel<Category>(category));
         }
         catch (Exception e)
         {
-            return StatusCode(500, "Internal error server");
+            return StatusCode(500, new ResultViewModel<List<Category>>("Internal error server"));
         }
     }
 
     [HttpPost("v1/categories")]
     public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel category)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(new ResultViewModel<Category>(ModelState.GetErrors()));
+
         try
         {
             var categoryObject = new Category()
             {
-                Name = !string.IsNullOrEmpty(category.Name) ? category.Name : string.Empty,
-                Slug = !string.IsNullOrEmpty(category.Slug) ? category.Slug : string.Empty
+                Name = category.Name,
+                Slug = category.Slug
             };
 
             await context.Categories.AddAsync(categoryObject);
