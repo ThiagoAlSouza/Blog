@@ -1,5 +1,4 @@
-﻿using System.Linq.Expressions;
-using Blog.Data;
+﻿using Blog.Data;
 using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels;
@@ -21,7 +20,7 @@ public class CategoryController : ControllerBase
 
             return Ok(new ResultViewModel<List<Category>>(listCategory));
         }
-        catch (ArgumentNullException e)
+        catch (ArgumentNullException)
         {
             return StatusCode(500, new ResultViewModel<List<Category>>("Any value null on object."));
         }
@@ -39,7 +38,7 @@ public class CategoryController : ControllerBase
 
             return Ok(new ResultViewModel<Category>(category));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return StatusCode(500, new ResultViewModel<List<Category>>("Internal error server"));
         }
@@ -64,11 +63,11 @@ public class CategoryController : ControllerBase
 
             return Created($"categories/{categoryObject.Id}", categoryObject);
         }
-        catch (DbUpdateException e)
+        catch (DbUpdateException)
         {
             return StatusCode(500, new ResultViewModel<Category>( "Failed to insert register."));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
         }
@@ -92,11 +91,11 @@ public class CategoryController : ControllerBase
 
             return Ok();
         }
-        catch (DbUpdateException e)
+        catch (DbUpdateException)
         {
             return StatusCode(500, new ResultViewModel<Category>("Failed to insert register."));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
         }
@@ -117,11 +116,11 @@ public class CategoryController : ControllerBase
 
             return Ok(register);
         }
-        catch (DbUpdateException e)
+        catch (DbUpdateException)
         {
             return StatusCode(500, new ResultViewModel<Category>("Failed to insert register."));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
         }

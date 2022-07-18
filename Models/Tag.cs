@@ -1,17 +1,14 @@
-using System.Collections.Generic;
+namespace Blog.Models;
 
-namespace Blog.Models
+public class Tag
 {
-    public class Tag
-    {
-        #region Properties
+    #region Properties
 
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Slug { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Slug { get; set; }
 
-        public List<Post> Posts { get; set; }
+    public List<Post> Posts { get; set; }
 
-        #endregion
-    }
+    #endregion
 }

@@ -1,17 +1,14 @@
-using System.Collections.Generic;
+namespace Blog.Models;
 
-namespace Blog.Models
+public class Role
 {
-    public class Role
-    {
-        #region Properties
+    #region Properties
 
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Slug { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Slug { get; set; }
 
-        public IList<User> Users { get; set; }
+    public IList<User> Users { get; set; }
 
-        #endregion
-    }
+    #endregion
 }

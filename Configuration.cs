@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
-
-namespace Blog;
+﻿namespace Blog;
 
 public static class Configuration
 {
