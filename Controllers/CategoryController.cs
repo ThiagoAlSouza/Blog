@@ -1,4 +1,5 @@
-﻿using Blog.Data;
+﻿using System.Linq.Expressions;
+using Blog.Data;
 using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels;
@@ -8,9 +9,10 @@ using Microsoft.EntityFrameworkCore;
 namespace Blog.Controllers;
 
 [ApiController]
+[Route("v1")]
 public class CategoryController : ControllerBase
 {
-    [HttpGet("v1/categories")]
+    [HttpGet("categories")]
     public async Task<IActionResult> Get([FromServices] BlogDataContext context)
     {
         try
@@ -25,7 +27,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("v1/categories/{id:int}")]
+    [HttpGet("categories/{id:int}")]
     public async Task<IActionResult> GetByIdAsync([FromServices] BlogDataContext context, [FromRoute] int id)
     {
         try
@@ -43,7 +45,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpPost("v1/categories")]
+    [HttpPost("categories")]
     public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel category)
     {
         if (!ModelState.IsValid)
@@ -64,15 +66,15 @@ public class CategoryController : ControllerBase
         }
         catch (DbUpdateException e)
         {
-            return StatusCode(500, "Failed to insert register.");
+            return StatusCode(500, new ResultViewModel<Category>( "Failed to insert register."));
         }
         catch (Exception e)
         {
-            return StatusCode(500, "Internal error server");
+            return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
         }
     }
 
-    [HttpPut("v1/categories/{id:int}")]
+    [HttpPut("categories/{id:int}")]
     public async Task<IActionResult> Put([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel category, [FromRoute] int id)
     {
         try
@@ -80,7 +82,7 @@ public class CategoryController : ControllerBase
             var register = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             if (register == null)
-                return NotFound();
+                return NotFound(new ResultViewModel<Category>(ModelState.GetErrors()));
 
             register.Name = category.Name;
             register.Slug = category.Slug;
@@ -92,15 +94,15 @@ public class CategoryController : ControllerBase
         }
         catch (DbUpdateException e)
         {
-            return StatusCode(500, "Failed to insert register.");
+            return StatusCode(500, new ResultViewModel<Category>("Failed to insert register."));
         }
         catch (Exception e)
         {
-            return StatusCode(500, "Internal error server");
+            return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
         }
     }
 
-    [HttpDelete("v1/categories/{id:int}")]
+    [HttpDelete("categories/{id:int}")]
     public async Task<IActionResult> Delete([FromServices] BlogDataContext context, [FromRoute] int id)
     {
         try
@@ -108,7 +110,7 @@ public class CategoryController : ControllerBase
             var register = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             if (register == null)
-                return NotFound();
+                return NotFound(new ResultViewModel<Category>(ModelState.GetErrors()));
 
             context.Categories.Remove(register);
             await context.SaveChangesAsync();
@@ -117,11 +119,11 @@ public class CategoryController : ControllerBase
         }
         catch (DbUpdateException e)
         {
-            return StatusCode(500, "Failed to insert register.");
+            return StatusCode(500, new ResultViewModel<Category>("Failed to insert register."));
         }
         catch (Exception e)
         {
-            return StatusCode(500, "Internal error server");
+            return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
         }
     }
 }
