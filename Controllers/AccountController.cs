@@ -1,6 +1,11 @@
-﻿using Blog.Services;
+﻿using Blog.Data;
+using Blog.Extensions;
+using Blog.Models;
+using Blog.Services;
+using Blog.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Controllers;
 
@@ -9,22 +14,49 @@ namespace Blog.Controllers;
 [Route("v1")]
 public class AccountController : ControllerBase
 {
-    [HttpGet("user")]
-    public IActionResult GetUser()
+    [HttpGet("account/{id:int}")]
+    public async Task<IActionResult> GetById([FromServices] BlogDataContext context, [FromRoute] int id)
     {
-        return Ok(User.Identity.Name);
+        try
+        {
+            var register = await context.Users.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+            if (register == null)
+                return NotFound(new ResultViewModel<User>("Register not found."));
+
+            return Ok(new ResultViewModel<User>(register));
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<List<User>>("Internal error server"));
+        }
     }
 
-    [HttpGet("author")]
-    public IActionResult GetAuthor()
+    [HttpPost("account")]
+    public async Task<IActionResult> CreateAccount([FromServices] BlogDataContext context, [FromBody] RegisterUserViewModel userView)
     {
-        return Ok(User.Identity.Name);
-    }
+        try
+        {
+            if(!ModelState.IsValid)
+                return BadRequest(new ResultViewModel<RegisterUserViewModel>(ModelState.GetErrors()));
 
-    [HttpGet("admin")]
-    public IActionResult GeAdmin()
-    {
-        return Ok(User.Identity.Name);
+            var user = new User
+            {
+                Name = userView.Name,
+                Email = userView.email,
+                Slug = userView.email.Replace("@", "-").Replace(".", "-"),
+                PasswordHash = userView.senha
+            };
+
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
+
+            return Created("$account/{user.id}", user);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<RegisterUserViewModel>(ModelState.GetErrors()));
+        }
     }
 
     [AllowAnonymous]
