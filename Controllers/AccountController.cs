@@ -6,6 +6,8 @@ using Blog.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.WebEncoders.Testing;
+using SecureIdentity.Password;
 
 namespace Blog.Controllers;
 
@@ -33,7 +35,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("account")]
-    public async Task<IActionResult> CreateAccount([FromServices] BlogDataContext context, [FromBody] RegisterUserViewModel userView)
+    public async Task<IActionResult> CreateAccount([FromServices] BlogDataContext context, [FromBody] RegisterUserViewModel model)
     {
         try
         {
@@ -42,10 +44,10 @@ public class AccountController : ControllerBase
 
             var user = new User
             {
-                Name = userView.Name,
-                Email = userView.email,
-                Slug = userView.email.Replace("@", "-").Replace(".", "-"),
-                PasswordHash = userView.senha
+                Name = model.Name,
+                Email = model.email,
+                Slug = model.email.Replace("@", "-").Replace(".", "-"),
+                PasswordHash = PasswordHasher.Hash(model.senha)
             };
 
             await context.Users.AddAsync(user);
@@ -55,16 +57,38 @@ public class AccountController : ControllerBase
         }
         catch (Exception)
         {
-            return StatusCode(500, new ResultViewModel<RegisterUserViewModel>(ModelState.GetErrors()));
+            return StatusCode(500, new ResultViewModel<string>("Internal server error."));
         }
     }
 
     [AllowAnonymous]
-    [HttpPost("token")]
-    public IActionResult Token([FromServices] TokenService tokenService)
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromServices] TokenService tokenService, [FromServices] BlogDataContext context, [FromBody] LoginViewModel model)
     {   
-        var token = tokenService.GenerateToken(null);
+        if (!ModelState.IsValid)
+            return BadRequest(new ResultViewModel<LoginViewModel>(ModelState.GetErrors()));
 
-        return Ok(token);
+        var register = await context
+            .Users
+            .AsNoTracking()
+            .Include(x => x.Roles)
+            .FirstOrDefaultAsync(x => x.Email == model.Email);
+
+        if (register == null)
+            return NotFound(new ResultViewModel<dynamic>("Register not found."));
+
+        if(!PasswordHasher.Verify(register.PasswordHash, model.Senha))
+            return BadRequest(new ResultViewModel<dynamic>("Password incorrect."));
+
+        try
+        {
+            var token = tokenService.GenerateToken(register);
+
+            return Ok(new ResultViewModel<string>(token, null));
+        }
+        catch
+        {
+            return StatusCode(500, new ResultViewModel<string>("Internal server error"));
+        }
     }
 }
