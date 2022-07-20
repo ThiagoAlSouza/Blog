@@ -2,6 +2,7 @@
 using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +10,7 @@ namespace Blog.Controllers;
 
 [ApiController]
 [Route("v1")]
+[Authorize]
 public class CategoryController : ControllerBase
 {
     [HttpGet("categories")]
