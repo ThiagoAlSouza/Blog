@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.ViewModels;
+namespace Blog.ViewModels.Accounts;
 
 public class RegisterUserViewModel
 {

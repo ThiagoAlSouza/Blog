@@ -1,8 +1,10 @@
-﻿using Blog.Data;
+﻿using System.Text.RegularExpressions;
+using Blog.Data;
 using Blog.Extensions;
 using Blog.Models;
 using Blog.Services;
-using Blog.ViewModels;
+using Blog.ViewModels.Accounts;
+using Blog.ViewModels.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -89,6 +91,41 @@ public class AccountController : ControllerBase
         catch
         {
             return StatusCode(500, new ResultViewModel<string>("Internal server error"));
+        }
+    }
+
+    [HttpPost("account/upload-image")]
+    public async Task<IActionResult> UpdloadImage([FromServices] BlogDataContext context, [FromBody] UploadImageViewModel model)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(new ResultViewModel<UploadImageViewModel>(ModelState.GetErrors()));
+
+            var fileName = $"{Guid.NewGuid().ToString()}.jpg";
+            var data = new Regex(@"data:image\/[a-z]+;base64").Replace(model.Base64Image, replacement: "");
+
+            var bytes = Convert.FromBase64String(data);
+
+            await System.IO.File.WriteAllBytesAsync($"wwwroot/images/{fileName}", bytes);
+
+            var user = await context 
+                .Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Email == User.Identity.Name);
+
+            if (user == null)
+                return NotFound(new ResultViewModel<dynamic>("User not found."));
+
+            user.Image = $"http://localhost:0000/images/{fileName}";
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
+            
+            return Ok(new ResultViewModel<string>("Image upload success."));
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<string>("Internal server error."));
         }
     }
 }

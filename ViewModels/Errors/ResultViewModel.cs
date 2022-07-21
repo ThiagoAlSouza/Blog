@@ -1,4 +1,4 @@
-﻿namespace Blog.ViewModels;
+﻿namespace Blog.ViewModels.Errors;
 
 public class ResultViewModel<T> where T : class
 {
