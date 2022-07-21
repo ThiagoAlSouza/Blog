@@ -6,7 +6,6 @@ using Blog.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.WebEncoders.Testing;
 using SecureIdentity.Password;
 
 namespace Blog.Controllers;
@@ -35,7 +34,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("account")]
-    public async Task<IActionResult> CreateAccount([FromServices] BlogDataContext context, [FromBody] RegisterUserViewModel model)
+    public async Task<IActionResult> CreateAccount([FromServices] BlogDataContext context, [FromBody] RegisterUserViewModel model, [FromServices] EmailService emailService)
     {
         try
         {
@@ -52,6 +51,7 @@ public class AccountController : ControllerBase
 
             await context.Users.AddAsync(user);
             await context.SaveChangesAsync();
+            emailService.Send(user.Name, user.Email, "Teste envio email", $"Sua senha de usuário é {model.senha}");
 
             return Created("$account/{user.id}", user);
         }
