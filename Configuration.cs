@@ -8,11 +8,12 @@ public static class Configuration
 
     public static SmtpConfiguration Smtp = new();
 
+    //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
     public class SmtpConfiguration
     {
-        public static string Host { get; set; }
-        public static int Port { get; set; } = 25;
-        public static string Email { get; set; }
-        public static string Password { get; set; }
+        public string Host { get; set; }
+        public int Port { get; set; } = 25;
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }
