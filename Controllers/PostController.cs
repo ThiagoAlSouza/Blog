@@ -43,4 +43,27 @@ public class PostController : ControllerBase
             return StatusCode(500, new ResultViewModel<List<Category>>("Any value null on object."));
         }
     }
+
+    [HttpGet("posts/{:id}")]
+    public async Task<IActionResult> GetByIdAsync([FromServices] BlogDataContext context, int id)
+    {
+        try
+        {
+            var post = await context.Posts 
+                .AsNoTracking()
+                .Include(x => x.Category)
+                .Include(x => x.Author)
+                .ThenInclude(x => x.Roles)
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (post == null)
+                return NotFound(new ResultViewModel<Post>("Register not found."));
+
+            return Ok(new ResultViewModel<Post>(post));
+        }
+        catch (ArgumentNullException)
+        {
+            return StatusCode(500, new ResultViewModel<List<Category>>("Any value null on object."));
+        }
+    }
 }
