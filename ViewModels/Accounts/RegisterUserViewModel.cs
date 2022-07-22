@@ -9,6 +9,4 @@ public class RegisterUserViewModel
     [Required]
     [EmailAddress]
     public string email { get; set; }
-    [Required]
-    public string senha { get; set; }
 }

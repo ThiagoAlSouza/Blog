@@ -43,17 +43,19 @@ public class AccountController : ControllerBase
             if(!ModelState.IsValid)
                 return BadRequest(new ResultViewModel<RegisterUserViewModel>(ModelState.GetErrors()));
 
+            var passwordGuid = Guid.NewGuid().ToString();
+
             var user = new User
             {
                 Name = model.Name,
                 Email = model.email,
                 Slug = model.email.Replace("@", "-").Replace(".", "-"),
-                PasswordHash = PasswordHasher.Hash(model.senha)
+                PasswordHash = PasswordHasher.Hash(passwordGuid)
             };
 
             await context.Users.AddAsync(user);
             await context.SaveChangesAsync();
-            emailService.Send(user.Name, user.Email, "Teste envio email", $"Sua senha de usuário é {model.senha}");
+            emailService.Send(user.Name, user.Email, "Teste envio email", $"Sua senha de usuário é {passwordGuid}");
 
             return Created("$account/{user.id}", user);
         }
