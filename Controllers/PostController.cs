@@ -14,7 +14,7 @@ namespace Blog.Controllers;
 public class PostController : ControllerBase
 {
     [HttpGet("posts")]
-    public async Task<IActionResult> GetAllAsync([FromServices] BlogDataContext context)
+    public async Task<IActionResult> GetAllAsync([FromServices] BlogDataContext context, [FromQuery]int page = 0, [FromQuery] int pageSize = 25)
     {
         try
         {
@@ -28,9 +28,12 @@ public class PostController : ControllerBase
                     Title = x.Title,
                     Summary = x.Summary,
                     Slug = x.Slug,
-                    Author = $"{x.Author.Name} - {x.Author.Email}",
-                    Category = x.Category.Name
+                    Author = x.Author,
+                    Category = x.Category
                 })
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .OrderByDescending(x => x.Id)
                 .ToListAsync();
 
             return Ok(new ResultViewModel<List<ListPostsViewModel>>(listPosts));
