@@ -40,11 +40,11 @@ public class PostController : ControllerBase
         }
         catch (ArgumentNullException)
         {
-            return StatusCode(500, new ResultViewModel<List<Category>>("Any value null on object."));
+            return StatusCode(500, new ResultViewModel<List<Post>>("Any value null on object."));
         }
     }
 
-    [HttpGet("posts/{:id}")]
+    [HttpGet("posts/{id:int}")]
     public async Task<IActionResult> GetByIdAsync([FromServices] BlogDataContext context, int id)
     {
         try
@@ -63,7 +63,39 @@ public class PostController : ControllerBase
         }
         catch (ArgumentNullException)
         {
-            return StatusCode(500, new ResultViewModel<List<Category>>("Any value null on object."));
+            return StatusCode(500, new ResultViewModel<List<Post>>("Any value null on object."));
+        }
+    }
+
+    [HttpGet("posts/category/{category}")]
+    public async Task<IActionResult> GetByCategoryAsync([FromServices] BlogDataContext context, [FromRoute] string category, [FromQuery] int page = 0, [FromQuery] int pageSize = 25)
+    {
+        try
+        {
+            var listPosts = await context.Posts
+                .AsNoTracking()
+                .Include(x => x.Category)
+                .Include(x => x.Author)
+                .Where(x => x.Category.Slug == category)
+                .Select(x => new ListPostsViewModel
+                {
+                    Id = x.Id,
+                    Title = x.Title,
+                    Summary = x.Summary,
+                    Slug = x.Slug,
+                    Author = x.Author,
+                    Category = x.Category
+                })
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .OrderByDescending(x => x.Id)
+                .ToListAsync();
+
+            return Ok(new ResultViewModel<List<ListPostsViewModel>>(listPosts));
+        }
+        catch (ArgumentNullException)
+        {
+            return StatusCode(500, new ResultViewModel<List<Post>>("Any value null on object."));
         }
     }
 }
