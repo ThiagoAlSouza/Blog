@@ -16,6 +16,10 @@ ConfigureAuthentication(builder);
 ConfigureMvc(builder);
 ConfigureServices(builder);
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
 var app = builder.Build();
 
 LoadConfigurations(app);
@@ -26,6 +30,8 @@ app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();
 app.UseResponseCompression();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.Run();
 
