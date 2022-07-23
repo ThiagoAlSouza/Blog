@@ -25,6 +25,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();
+app.UseResponseCompression();
 
 app.Run();
 
