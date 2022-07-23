@@ -6,6 +6,7 @@ using Blog.ViewModels.Errors;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Blog.Controllers;
 
@@ -15,11 +16,15 @@ namespace Blog.Controllers;
 public class CategoryController : ControllerBase
 {
     [HttpGet("categories")]
-    public async Task<IActionResult> Get([FromServices] BlogDataContext context)
+    public async Task<IActionResult> Get([FromServices] BlogDataContext context, [FromServices] IMemoryCache cache)
     {
         try
         {
-            var listCategory = await context.Categories.AsNoTracking().ToListAsync();
+            var listCategory = cache.GetOrCreate("CategoriesCache", entry =>
+            {
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
+                return context.Categories.ToList();
+            });
 
             return Ok(new ResultViewModel<List<Category>>(listCategory));
         }
@@ -68,7 +73,7 @@ public class CategoryController : ControllerBase
         }
         catch (DbUpdateException)
         {
-            return StatusCode(500, new ResultViewModel<Category>( "Failed to insert register."));
+            return StatusCode(500, new ResultViewModel<Category>("Failed to insert register."));
         }
         catch (Exception)
         {
