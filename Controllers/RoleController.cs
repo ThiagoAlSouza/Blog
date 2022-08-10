@@ -12,7 +12,7 @@ namespace Blog.Controllers;
 [Route("v1")]
 public class RoleController : ControllerBase
 {
-    [HttpGet]
+    [HttpGet("roles")]
     public async Task<IActionResult> Get([FromServices] BlogDataContext context)
     {
         try
