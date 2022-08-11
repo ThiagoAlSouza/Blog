@@ -29,6 +29,24 @@ public class RoleController : ControllerBase
         }
     }
 
+    [HttpGet("roles/{id:int}")]
+    public async Task<IActionResult> GetByIdAsync([FromServices] BlogDataContext context, [FromRoute] int id)
+    {
+        try
+        {
+            var role = await context.Role.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+            if (role == null)
+                return NotFound(new ResultViewModel<Role>("Register not found."));
+
+            return Ok(new ResultViewModel<Role>(role));
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<List<Role>>("Internal error server"));
+        }
+    }
+
     [HttpPost("roles")]
     public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorRoleViewModel body)
     {
