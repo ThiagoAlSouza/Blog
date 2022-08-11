@@ -75,4 +75,33 @@ public class RoleController : ControllerBase
             return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
         }
     }
+
+    [HttpPut("roles/{id:int}")]
+    public async Task<IActionResult> Put([FromServices] BlogDataContext context, [FromBody] EditorRoleViewModel body, [FromRoute] int id)
+    {
+        try
+        {
+            var register = await context.Role.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+            if (register == null)
+                return NotFound(new ResultViewModel<Category>(ModelState.GetErrors()));
+
+            register.Name = body.Name;
+            register.Slug = body.Slug;
+
+            context.Role.Update(register);
+            await context.SaveChangesAsync();
+
+            return Ok();
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<Role>("Failed to insert register."));
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<Role>("Internal error server"));
+        }
+    }
+
 }
