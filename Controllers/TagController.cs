@@ -76,4 +76,33 @@ public class TagController : ControllerBase
             return StatusCode(500, new ResultViewModel<Tag>("Internal error server"));
         }
     }
+
+    [HttpPut("tags/{id:int}")]
+    public async Task<IActionResult> Put([FromServices] BlogDataContext context, [FromBody] EditorTagViewModel body, [FromRoute] int id)
+    {
+        try
+        {
+            var register = await context.Tag.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+            if (register == null)
+                return NotFound(new ResultViewModel<Tag>(ModelState.GetErrors()));
+
+            register.Name = body.Name;
+            register.Slug = body.Slug;
+
+            context.Tag.Update(register);
+            await context.SaveChangesAsync();
+
+            return Ok(register);
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<Tag>("Failed to insert register."));
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<Tag>("Internal error server"));
+        }
+    }
+
 }
