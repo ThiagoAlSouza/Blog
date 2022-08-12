@@ -2,7 +2,6 @@
 using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels.Errors;
-using Blog.ViewModels.Roles;
 using Blog.ViewModels.Tags;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,7 +48,7 @@ public class TagController : ControllerBase
     }
 
     [HttpPost("tags")]
-    public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorTagViewModel body)
+    public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorTagViewModel? body)
     {
         try
         {
