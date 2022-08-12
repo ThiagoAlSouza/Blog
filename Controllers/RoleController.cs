@@ -68,11 +68,11 @@ public class RoleController : ControllerBase
         }
         catch (DbUpdateException)
         {
-            return StatusCode(500, new ResultViewModel<Category>("Failed to insert register."));
+            return StatusCode(500, new ResultViewModel<Role>("Failed to insert register."));
         }
         catch (Exception)
         {
-            return StatusCode(500, new ResultViewModel<Category>("Internal error server"));
+            return StatusCode(500, new ResultViewModel<Role>("Internal error server"));
         }
     }
 

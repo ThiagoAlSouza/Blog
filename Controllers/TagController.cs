@@ -1,6 +1,9 @@
 ﻿using Blog.Data;
+using Blog.Extensions;
 using Blog.Models;
 using Blog.ViewModels.Errors;
+using Blog.ViewModels.Roles;
+using Blog.ViewModels.Tags;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +45,35 @@ public class TagController : ControllerBase
         catch (Exception)
         {
             return StatusCode(500, new ResultViewModel<List<Tag>>("Internal error server"));
+        }
+    }
+
+    [HttpPost("tags")]
+    public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorTagViewModel body)
+    {
+        try
+        {
+            if (body == null)
+                return BadRequest(new ResultViewModel<Tag>(ModelState.GetErrors()));
+
+            var tag = new Tag
+            {
+                Name = body.Name,
+                Slug = body.Slug
+            };
+
+            await context.Tag.AddAsync(tag);
+            await context.SaveChangesAsync();
+
+            return Created($"tags/{tag.Id}", tag);
+        }
+        catch (DbUpdateException)
+        {
+            return StatusCode(500, new ResultViewModel<Tag>("Failed to insert register."));
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, new ResultViewModel<Tag>("Internal error server"));
         }
     }
 }
