@@ -16,7 +16,7 @@ namespace Blog.Controllers;
 public class CategoryController : ControllerBase
 {
     [HttpGet("categories")]
-    public async Task<IActionResult> Get([FromServices] BlogDataContext context, [FromServices] IMemoryCache cache)
+    public IActionResult Get([FromServices] BlogDataContext context, [FromServices] IMemoryCache cache)
     {
         try
         {
