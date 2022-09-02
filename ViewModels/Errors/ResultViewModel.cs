@@ -29,7 +29,7 @@ public class ResultViewModel<T> where T : class
 
     #region Properties
 
-    public T Data { get; private set; }
+    public T? Data { get; private set; }
     public List<string> Errors { get; private set; } = new();
 
     #endregion
