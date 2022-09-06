@@ -22,4 +22,10 @@
     <Folder Include="wwwroot\images\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="TapiFramework">
+      <HintPath>bin\Debug\net6.0\TapiFramework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
