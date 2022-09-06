@@ -1,5 +1,6 @@
 ﻿using Blog.Data;
 using Blog.Extensions;
+using Blog.Interfaces;
 using Blog.Models;
 using Blog.ViewModels.Categories;
 using Blog.ViewModels.Errors;
@@ -15,6 +16,13 @@ namespace Blog.Controllers;
 [Authorize]
 public class CategoryController : ControllerBase
 {
+    private ICategoryRepository _categoryRepository;
+
+    public CategoryController(ICategoryRepository categoryRepository)
+    {
+        _categoryRepository = categoryRepository;
+    }
+
     [HttpGet("categories")]
     public IActionResult Get([FromServices] BlogDataContext context, [FromServices] IMemoryCache cache)
     {
@@ -33,16 +41,20 @@ public class CategoryController : ControllerBase
             return StatusCode(500, new ResultViewModel<List<Category>>("Any value null on object."));
         }
     }
-
+    [AllowAnonymous]
     [HttpGet("categories/{id:int}")]
-    public async Task<IActionResult> GetByIdAsync([FromServices] BlogDataContext context, [FromRoute] int id)
+    public async Task<IActionResult> GetByIdAsync([FromRoute] int id)
     {
         try
         {
-            var category = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
-
-            if (category == null)
+            //var category = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            var categories = await _categoryRepository.GetAllAsync();
+            Category category = null;
+            
+            if (categories == null)
                 return NotFound(new ResultViewModel<Category>("Register not found."));
+            else 
+                category = categories.FirstOrDefault(x => x.Id == id);
 
             return Ok(new ResultViewModel<Category>(category));
         }
@@ -51,7 +63,7 @@ public class CategoryController : ControllerBase
             return StatusCode(500, new ResultViewModel<List<Category>>("Internal error server"));
         }
     }
-
+    [AllowAnonymous]
     [HttpPost("categories")]
     public async Task<IActionResult> Post([FromServices] BlogDataContext context, [FromBody] EditorCategoryViewModel category)
     {

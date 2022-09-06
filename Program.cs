@@ -4,6 +4,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Blog;
 using Blog.Data;
+using Blog.Interfaces;
+using Blog.Repositories;
 using Blog.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -86,9 +88,10 @@ void ConfigureServices(WebApplicationBuilder builder)
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
     builder.Services.AddDbContext<BlogDataContext>(option =>
-        option.UseSqlServer(connectionString));
+        option.UseInMemoryDatabase("BlogDatabase"));
     builder.Services.AddTransient<TokenService>();
     builder.Services.AddTransient<EmailService>();
+    builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 }
 
 void LoadConfigurations(WebApplication app)

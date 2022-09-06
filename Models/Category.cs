@@ -1,6 +1,8 @@
+using TapiFramework.Entities.Interfaces;
+
 namespace Blog.Models;
 
-public class Category
+public class Category : IBaseEntity
 {
     #region Properties
 
