@@ -47,14 +47,11 @@ public class CategoryController : ControllerBase
     {
         try
         {
-            //var category = await context.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
             var categories = await _categoryRepository.GetAllAsync();
-            Category category = null;
-            
-            if (categories == null)
+            var category = categories?.FirstOrDefault(x => x.Id == id);
+
+            if (category == null)
                 return NotFound(new ResultViewModel<Category>("Register not found."));
-            else 
-                category = categories.FirstOrDefault(x => x.Id == id);
 
             return Ok(new ResultViewModel<Category>(category));
         }
